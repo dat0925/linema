@@ -2,6 +2,7 @@ import { createSupabaseClient } from "./supabase.js";
 import { handleWebhook } from "./webhook.js";
 import { previewSegment, createAndSendBroadcast } from "./broadcast.js";
 import { issueLinkingCode } from "./linking.js";
+import { getUsageSummary } from "./usageSummary.js";
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -53,6 +54,13 @@ export default {
 
       if (path === "/health") {
         return jsonResponse({ status: "ok", service: "linema" });
+      }
+
+      // 提案エンジン向け軽量サマリー: /api/tenants/:tenantId/usage-summary
+      const usageMatch = path.match(/^\/api\/tenants\/([^/]+)\/usage-summary$/);
+      if (usageMatch && method === "GET") {
+        const result = await getUsageSummary(supabase, usageMatch[1]);
+        return jsonResponse(result);
       }
 
       return jsonResponse({ error: "not found" }, 404);
