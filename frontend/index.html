@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LINE MAエージェント</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14151A;
+    --ink-soft: #4A4C57;
+    --paper: #F5F6F8;
+    --paper-raised: #FFFFFF;
+    --line-hair: #E4E5EA;
+    --brand: #0F6B5C;
+    --brand-soft: #E5F1EE;
+    --brand-deep: #0A4A40;
+    --amber: #C6822B;
+    --amber-soft: #FBF0E1;
+    --line-green: #06C755;
+    --line-chat-bg: #8DBF3E;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,21,26,0.04), 0 8px 24px rgba(20,21,26,0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .display {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+  }
+
+  .mono {
+    font-family: 'Roboto Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a, button { font-family: inherit; }
+
+  /* ---------- App shell ---------- */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 232px;
+    flex-shrink: 0;
+    background: var(--ink);
+    color: #fff;
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 28px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .brand-mark .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--line-green);
+    flex-shrink: 0;
+  }
+
+  .brand-mark .name {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+
+  .brand-mark .sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    color: rgba(255,255,255,0.68);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: 0.85; }
+
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+
+  .nav-item.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+
+  .nav-item.active svg { opacity: 1; }
+
+  .nav-tenant {
+    margin-top: auto;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .nav-tenant .t-name {
+    color: #fff;
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 32px 40px 80px;
+    max-width: 1180px;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 20px;
+  }
+
+  .page-head h1 {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: 0.01em;
+  }
+
+  .page-head p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { box-shadow: var(--shadow); }
+  .btn-brand { background: var(--brand); color: #fff; }
+  .btn-brand:hover { background: var(--brand-deep); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line-hair); }
+  .btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  .screen { display: none; animation: fadeIn 0.25s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Cards / KPIs ---------- */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-hair);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+
+  .kpi-card .label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kpi-card .value {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .kpi-card .delta { font-size: 11.5px; margin-top: 6px; }
+  .delta.up { color: var(--brand); }
+  .delta.warn { color: var(--amber); }
+
+  .panel {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-hair);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title .hint { font-size: 11.5px; font-weight: 400; color: var(--ink-soft); font-family: 'Noto Sans JP', sans-serif; }
+
+  .activity-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-hair);
+    font-size: 13px;
+  }
+  .activity-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .activity-row .icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: var(--brand-soft); color: var(--brand);
+  }
+  .activity-row .icon svg { width: 14px; height: 14px; }
+  .activity-row .desc { flex: 1; color: var(--ink); }
+  .activity-row .desc b { font-weight: 500; }
+  .activity-row .time { color: var(--ink-soft); font-size: 11.5px; flex-shrink: 0; }
+
+  /* ---------- Tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--line-hair);
+  }
+  td { padding: 13px 12px; border-bottom: 1px solid var(--line-hair); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.row-hover:hover td { background: var(--paper); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 100px;
+  }
+  .badge .d { width: 6px; height: 6px; border-radius: 50%; }
+  .badge.linked { background: var(--brand-soft); color: var(--brand-deep); }
+  .badge.linked .d { background: var(--brand); }
+  .badge.unlinked { background: #EFF0F3; color: var(--ink-soft); }
+  .badge.unlinked .d { background: #B5B7C0; }
+  .badge.blocked { background: #FBEAE8; color: #A23B2E; }
+  .badge.blocked .d { background: #D9503F; }
+  .badge.completed { background: var(--brand-soft); color: var(--brand-deep); }
+  .badge.completed .d { background: var(--brand); }
+  .badge.sending { background: var(--amber-soft); color: var(--amber); }
+  .badge.sending .d { background: var(--amber); }
+
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 7px;
+    background: var(--paper);
+    border: 1px solid var(--line-hair);
+    color: var(--ink-soft);
+    margin-right: 4px;
+  }
+
+  /* ---------- Segments grid ---------- */
+  .segment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .segment-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-hair);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .segment-card:hover { border-color: var(--brand); }
+  .segment-card .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .segment-card .name { font-weight: 700; font-size: 14.5px; font-family: 'Zen Kaku Gothic New', sans-serif; }
+  .segment-card .count { font-family: 'Roboto Mono', monospace; font-size: 20px; font-weight: 700; color: var(--brand-deep); }
+  .segment-card .count-label { font-size: 10.5px; color: var(--ink-soft); }
+  .segment-card .conditions { margin-top: 10px; }
+
+  .new-segment-card {
+    border: 1.5px dashed var(--line-hair);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    min-height: 110px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .new-segment-card:hover { border-color: var(--brand); color: var(--brand-deep); }
+
+  /* ---------- Compose screen ---------- */
+  .compose-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .field-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .select-box, textarea.compose-input {
+    width: 100%;
+    border: 1px solid var(--line-hair);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 13.5px;
+    font-family: inherit;
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  textarea.compose-input {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.7;
+  }
+  textarea.compose-input:focus, .select-box:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+
+  .score-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-top: 16px;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+  .score-banner.ok { background: var(--brand-soft); color: var(--brand-deep); }
+  .score-banner.warn { background: var(--amber-soft); color: #8A5A1E; }
+  .score-banner b { display: block; font-size: 13.5px; margin-bottom: 2px; font-family: 'Zen Kaku Gothic New', sans-serif; }
+  .score-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* Phone preview - signature element */
+  .phone-wrap {
+    position: sticky;
+    top: 32px;
+  }
+  .phone {
+    width: 280px;
+    background: #000;
+    border-radius: 34px;
+    padding: 10px;
+    box-shadow: 0 20px 50px rgba(20,21,26,0.25);
+  }
+  .phone-screen {
+    background: var(--line-chat-bg);
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-notch {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .phone-notch .pill { width: 60px; height: 5px; background: rgba(0,0,0,0.7); border-radius: 3px; }
+  .phone-topbar {
+    background: #fff;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .phone-topbar .av {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 10px; font-weight: 700;
+  }
+  .phone-body {
+    flex: 1;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .bubble-row { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 4px; }
+  .bubble-av {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--brand);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .bubble {
+    background: #fff;
+    border-radius: 4px 14px 14px 14px;
+    padding: 10px 13px;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 190px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .bubble.empty { color: #A6A6A6; font-style: italic; }
+  .bubble-time { font-size: 9.5px; color: rgba(0,0,0,0.4); margin-top: 5px; margin-left: 34px; }
+
+  .phone-caption {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 14px;
+  }
+
+  .reach-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line-hair);
+  }
+  .reach-box .n { font-family: 'Roboto Mono', monospace; font-size: 22px; font-weight: 700; }
+  .reach-box .l { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+
+  .tab-toggle { display: flex; gap: 6px; margin-bottom: 20px; }
+  .tab-toggle button {
+    border: 1px solid var(--line-hair);
+    background: var(--paper-raised);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .tab-toggle button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  code.pin {
+    font-family: 'Roboto Mono', monospace;
+    background: var(--paper);
+    border: 1px solid var(--line-hair);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .segment-grid { grid-template-columns: 1fr; }
+    .compose-layout { grid-template-columns: 1fr; }
+    .phone-wrap { position: static; display: flex; justify-content: center; margin-top: 20px; }
+  }
+
+  @media (max-width: 720px) {
+    .app { flex-direction: column; }
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      align-items: center;
+      padding: 10px 14px;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand-mark { display: none; }
+    .nav-tenant { display: none; }
+    .nav-item { flex-direction: column; gap: 4px; padding: 8px 10px; font-size: 10.5px; white-space: nowrap; }
+    .main { padding: 20px 16px 60px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .page-head { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="brand-mark">
+      <div class="dot"></div>
+      <div>
+        <div class="name">LINE MAエージェント</div>
+        <div class="sub">サイトマイスター オプション</div>
+      </div>
+    </div>
+
+    <button class="nav-item active" data-screen="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      ダッシュボード
+    </button>
+    <button class="nav-item" data-screen="customers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.6.3 4.5 2.4 4.5 5.3"/></svg>
+      顧客連携
+    </button>
+    <button class="nav-item" data-screen="segments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7M14 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7"/></svg>
+      セグメント
+    </button>
+    <button class="nav-item" data-screen="compose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20l8-8-4-4-8 8v4h4z"/><path d="M3 21h6"/></svg>
+      配信作成
+    </button>
+    <button class="nav-item" data-screen="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+      配信履歴
+    </button>
+
+    <div class="nav-tenant">
+      <div class="t-name">まるやま鮮魚店</div>
+      連携中のLINE公式アカウント
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="screen active" id="screen-dashboard">
+      <div class="page-head">
+        <div>
+          <h1 class="display">ダッシュボード</h1>
+          <p>友だち・連携状況・直近の配信結果をひと目で確認できます。</p>
+        </div>
+        <button class="btn btn-brand" onclick="showScreen('compose')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+          配信を作成
+        </button>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="label">LINE友だち数</div>
+          <div class="value mono">1,284</div>
+          <div class="delta up">先月比 +6.2%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">連携済み顧客</div>
+          <div class="value mono">842</div>
+          <div class="delta up">連携率 65.6%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">今月の配信</div>
+          <div class="value mono">4</div>
+          <div class="delta" style="color:var(--ink-soft)">前月と同数</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">平均ブロック率</div>
+          <div class="value mono">0.8%</div>
+          <div class="delta up">業界平均以下</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="panel-title">最近のアクティビティ<span class="hint">直近7日間</span></p>
+
+        <div class="activity-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20l8-8-4-4-8 8v4h4z"/></svg></div>
+          <div class="desc"><b>「週末の入荷情報」</b>を配信 — 対象312人 / 開封率58%</div>
+          <div class="time">2日前</div>
+        </div>
+        <div class="activity-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/></svg></div>
+          <div class="desc">新規連携 <b>7件</b>（連携コード経由）</div>
+          <div class="time">3日前</div>
+        </div>
+        <div class="activity-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7"/></svg></div>
+          <div class="desc">セグメント <b>「常連(月3回以上)」</b>を作成</div>
+          <div class="time">5日前</div>
+        </div>
+        <div class="activity-row">
+          <div class="icon" style="background:var(--amber-soft); color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div>
+          <div class="desc">「全員配信」セグメントで直近14日以内の配信を検出 — 配信作成画面で注意喚起表示</div>
+          <div class="time">6日前</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMERS ============ -->
+    <section class="screen" id="screen-customers">
+      <div class="page-head">
+        <div>
+          <h1 class="display">顧客連携</h1>
+          <p>LINEの友だちとCRM君の顧客データを紐付けます。連携コードを発行し、顧客がLINEでコードを送ると自動的に紐付きます。</p>
+        </div>
+        <button class="btn btn-primary" onclick="alert('デモ: 実際には顧客を選んで連携コードを発行します')">
+          連携コードを発行
+        </button>
+      </div>
+
+      <div class="panel" style="display:flex; align-items:center; gap:14px; background:var(--brand-soft); border-color:var(--brand-soft);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand-deep)" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div style="font-size:12.5px; color:var(--brand-deep); line-height:1.7;">
+          発行例: 顧客「田中様」向けにコード <code class="pin">K7X9QM</code> を発行しました。有効期限30分。田中様がLINEでこのコードを送ると自動的に連携されます。
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0;">
+        <table>
+          <thead>
+            <tr><th>表示名</th><th>連携状態</th><th>顧客ID</th><th>最終アクション</th><th>友だち登録日</th></tr>
+          </thead>
+          <tbody id="customers-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ SEGMENTS ============ -->
+    <section class="screen" id="screen-segments">
+      <div class="page-head">
+        <div>
+          <h1 class="display">セグメント</h1>
+          <p>顧客のタグ・属性を条件にして配信対象を絞り込みます。CRM君のタグをそのまま条件として使えます。</p>
+        </div>
+      </div>
+
+      <div class="segment-grid" id="segments-grid"></div>
+    </section>
+
+    <!-- ============ COMPOSE ============ -->
+    <section class="screen" id="screen-compose">
+      <div class="page-head">
+        <div>
+          <h1 class="display">配信作成</h1>
+          <p>右側にLINE上での見え方がリアルタイムに表示されます。</p>
+        </div>
+      </div>
+
+      <div class="compose-layout">
+        <div>
+          <div class="panel">
+            <label class="field-label">配信先セグメント</label>
+            <select class="select-box" id="segment-select" onchange="updateReach()">
+              <option value="612">常連（月3回以上来店） — 612人</option>
+              <option value="1284">全員 — 1,284人</option>
+              <option value="203">新規（登録30日以内） — 203人</option>
+              <option value="88">休眠（90日以上来店なし） — 88人</option>
+            </select>
+
+            <div style="height:16px"></div>
+
+            <label class="field-label">メッセージ本文</label>
+            <textarea class="compose-input" id="message-input" placeholder="例: 本日入荷したての本マグロ、数量限定でご用意しております。" oninput="updatePreview()">週末限定で新鮮な朝どれ鯵を仕入れました。数に限りがございますのでお早めにどうぞ。</textarea>
+
+            <div class="score-banner ok" id="score-banner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 21a9 9 0 100-18 9 9 0 000 18z"/></svg>
+              <div>
+                <b>配信して問題なさそうです</b>
+                このセグメントへの直近配信は8日前。頻度・内容ともに適切な範囲です。
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <p class="panel-title">配信オプション</p>
+            <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:10px;">
+              <input type="checkbox" checked style="width:15px;height:15px;"> ブロック済みユーザーを自動除外する
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft);">
+              <input type="checkbox" style="width:15px;height:15px;"> 直近7日以内に配信済みのユーザーには送らない
+            </label>
+          </div>
+        </div>
+
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-notch"><div class="pill"></div></div>
+              <div class="phone-topbar">
+                <div class="av">魚</div>
+                まるやま鮮魚店
+              </div>
+              <div class="phone-body">
+                <div class="bubble-row">
+                  <div class="bubble-av">魚</div>
+                  <div class="bubble" id="preview-bubble">週末限定で新鮮な朝どれ鯵を仕入れました。数に限りがございますのでお早めにどうぞ。</div>
+                </div>
+                <div class="bubble-time">既読 12:41</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-caption">友だちのトーク画面での実際の見え方</div>
+
+          <div class="reach-box">
+            <div class="n mono" id="reach-count">612</div>
+            <div class="l">人に配信されます</div>
+          </div>
+
+          <button class="btn btn-brand" style="width:100%; justify-content:center; margin-top:14px;" onclick="alert('デモ: 実際にはここで配信が実行されます')">
+            この内容で配信する
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section class="screen" id="screen-history">
+      <div class="page-head">
+        <div>
+          <h1 class="display">配信履歴</h1>
+          <p>過去の配信結果と効果を確認できます。</p>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0;">
+        <table>
+          <thead>
+            <tr><th>配信内容</th><th>セグメント</th><th>状態</th><th>対象</th><th>開封率</th><th>ブロック</th><th>配信日</th></tr>
+          </thead>
+          <tbody id="history-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelector('.nav-item[data-screen="' + name + '"]').classList.add('active');
+  }
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+  });
+
+  // ---- mock data ----
+  const customers = [
+    { name: "田中 美咲", status: "linked", id: "CUST-0182", action: "先週の配信を開封", date: "2025-11-02" },
+    { name: "佐藤 健一", status: "linked", id: "CUST-0091", action: "先週の配信を開封", date: "2025-08-14" },
+    { name: "LINE友だち #4471", status: "unlinked", id: "—", action: "友だち追加のみ", date: "2026-06-30" },
+    { name: "鈴木 陽子", status: "blocked", id: "CUST-0055", action: "1ヶ月前にブロック", date: "2025-05-20" },
+    { name: "高橋 大輔", status: "linked", id: "CUST-0203", action: "連携コードで連携", date: "2026-07-02" },
+    { name: "LINE友だち #4502", status: "unlinked", id: "—", action: "友だち追加のみ", date: "2026-07-03" },
+  ];
+
+  const statusLabel = { linked: "連携済み", unlinked: "未連携", blocked: "ブロック中" };
+
+  document.getElementById('customers-table').innerHTML = customers.map(c => `
+    <tr class="row-hover">
+      <td>${c.name}</td>
+      <td><span class="badge ${c.status}"><span class="d"></span>${statusLabel[c.status]}</span></td>
+      <td class="mono" style="color:var(--ink-soft)">${c.id}</td>
+      <td style="color:var(--ink-soft)">${c.action}</td>
+      <td class="mono" style="color:var(--ink-soft)">${c.date}</td>
+    </tr>
+  `).join('');
+
+  const segments = [
+    { name: "常連（月3回以上来店）", count: 612, tags: ["来店頻度:高", "会員"] },
+    { name: "新規（登録30日以内）", count: 203, tags: ["登録日:直近30日"] },
+    { name: "休眠（90日以上来店なし）", count: 88, tags: ["来店頻度:低", "要フォロー"] },
+    { name: "全員", count: 1284, tags: ["条件なし"] },
+  ];
+
+  document.getElementById('segments-grid').innerHTML = segments.map(s => `
+    <div class="segment-card">
+      <div class="top-row">
+        <div class="name">${s.name}</div>
+      </div>
+      <div class="count">${s.count.toLocaleString()}</div>
+      <div class="count-label">該当人数</div>
+      <div class="conditions">${s.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}</div>
+    </div>
+  `).join('') + `<div class="new-segment-card" onclick="alert('デモ: 実際にはここでタグ条件を選んでセグメントを作成します')">+ 新しいセグメントを作成</div>`;
+
+  const history = [
+    { msg: "週末の入荷情報をお届け", seg: "常連", status: "completed", target: 312, open: "58%", block: "0.3%", date: "2026-07-04" },
+    { msg: "夏季休業のお知らせ", seg: "全員", status: "completed", target: 1284, open: "41%", block: "1.2%", date: "2026-06-28" },
+    { msg: "会員限定 本マグロ入荷", seg: "常連", status: "completed", target: 598, open: "63%", block: "0.2%", date: "2026-06-20" },
+    { msg: "father's day 特集配信中", seg: "新規", status: "sending", target: 203, open: "—", block: "—", date: "2026-07-06" },
+  ];
+
+  document.getElementById('history-table').innerHTML = history.map(h => `
+    <tr class="row-hover">
+      <td>${h.msg}</td>
+      <td style="color:var(--ink-soft)">${h.seg}</td>
+      <td><span class="badge ${h.status}"><span class="d"></span>${h.status === 'completed' ? '完了' : '配信中'}</span></td>
+      <td class="mono">${h.target.toLocaleString()}</td>
+      <td class="mono">${h.open}</td>
+      <td class="mono">${h.block}</td>
+      <td class="mono" style="color:var(--ink-soft)">${h.date}</td>
+    </tr>
+  `).join('');
+
+  // ---- compose interactivity ----
+  const reachBySegment = { "612": 612, "1284": 1284, "203": 203, "88": 88 };
+  const riskySegments = { "1284": true }; // "全員" triggers a warning in this demo
+
+  function updatePreview() {
+    const text = document.getElementById('message-input').value;
+    const bubble = document.getElementById('preview-bubble');
+    bubble.textContent = text || "ここにメッセージ本文が表示されます";
+    bubble.classList.toggle('empty', !text);
+  }
+
+  function updateReach() {
+    const val = document.getElementById('segment-select').value;
+    document.getElementById('reach-count').textContent = reachBySegment[val].toLocaleString();
+
+    const banner = document.getElementById('score-banner');
+    if (riskySegments[val]) {
+      banner.className = 'score-banner warn';
+      banner.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+        <div>
+          <b>配信頻度を確認してください</b>
+          「全員」セグメントへの前回配信は8日前です。全体配信が続くとブロック率が上がる傾向があります。
+        </div>`;
+    } else {
+      banner.className = 'score-banner ok';
+      banner.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 21a9 9 0 100-18 9 9 0 000 18z"/></svg>
+        <div>
+          <b>配信して問題なさそうです</b>
+          このセグメントへの直近配信は8日前。頻度・内容ともに適切な範囲です。
+        </div>`;
+    }
+  }
+
+  updatePreview();
+</script>
+</body>
+</html>
