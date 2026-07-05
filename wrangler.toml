@@ -1,0 +1,15 @@
+name = "linema"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# 【要設定】以下はCloudflareダッシュボードまたは `wrangler secret put` で設定する
+# シークレット経由で設定するもの（wrangler.tomlには書かない）:
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY
+#
+# LINEチャネルの認証情報（channel_secret, channel_access_token）は
+# テナントごとに linema_channels テーブルに保存するため、
+# ここではプラットフォーム共通のSupabase接続情報のみを扱う。
+
+[vars]
+ENVIRONMENT = "development"

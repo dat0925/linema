@@ -1,0 +1,13 @@
+{
+  "name": "linema",
+  "version": "0.1.0",
+  "description": "LINE MAエージェント - サイトマイスター向けLINEセグメント配信オプション",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}
