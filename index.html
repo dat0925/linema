@@ -626,7 +626,7 @@
 
         <div class="activity-row">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20l8-8-4-4-8 8v4h4z"/></svg></div>
-          <div class="desc"><b>「週末の入荷情報」</b>を配信 — 対象312人 / 開封率58%</div>
+          <div class="desc"><b>「週末の入荷情報」</b>を配信 — 対象312人 / 送信完了309人</div>
           <div class="time">2日前</div>
         </div>
         <div class="activity-row">
@@ -776,7 +776,7 @@
       <div class="panel" style="padding:0;">
         <table>
           <thead>
-            <tr><th>配信内容</th><th>セグメント</th><th>状態</th><th>対象</th><th>開封率</th><th>ブロック</th><th>配信日</th></tr>
+            <tr><th>配信内容</th><th>セグメント</th><th>状態</th><th>対象</th><th>送信完了</th><th>ブロック</th><th>配信日</th></tr>
           </thead>
           <tbody id="history-table"></tbody>
         </table>
@@ -799,8 +799,8 @@
 
   // ---- mock data ----
   const customers = [
-    { name: "田中 美咲", status: "linked", id: "CUST-0182", action: "先週の配信を開封", date: "2025-11-02" },
-    { name: "佐藤 健一", status: "linked", id: "CUST-0091", action: "先週の配信を開封", date: "2025-08-14" },
+    { name: "田中 美咲", status: "linked", id: "CUST-0182", action: "先週の配信の送信対象", date: "2025-11-02" },
+    { name: "佐藤 健一", status: "linked", id: "CUST-0091", action: "連携コードで連携", date: "2025-08-14" },
     { name: "LINE友だち #4471", status: "unlinked", id: "—", action: "友だち追加のみ", date: "2026-06-30" },
     { name: "鈴木 陽子", status: "blocked", id: "CUST-0055", action: "1ヶ月前にブロック", date: "2025-05-20" },
     { name: "高橋 大輔", status: "linked", id: "CUST-0203", action: "連携コードで連携", date: "2026-07-02" },
@@ -838,10 +838,10 @@
   `).join('') + `<div class="new-segment-card" onclick="alert('デモ: 実際にはここでタグ条件を選んでセグメントを作成します')">+ 新しいセグメントを作成</div>`;
 
   const history = [
-    { msg: "週末の入荷情報をお届け", seg: "常連", status: "completed", target: 312, open: "58%", block: "0.3%", date: "2026-07-04" },
-    { msg: "夏季休業のお知らせ", seg: "全員", status: "completed", target: 1284, open: "41%", block: "1.2%", date: "2026-06-28" },
-    { msg: "会員限定 本マグロ入荷", seg: "常連", status: "completed", target: 598, open: "63%", block: "0.2%", date: "2026-06-20" },
-    { msg: "father's day 特集配信中", seg: "新規", status: "sending", target: 203, open: "—", block: "—", date: "2026-07-06" },
+    { msg: "週末の入荷情報をお届け", seg: "常連", status: "completed", target: 312, sent: 309, block: "0.3%", date: "2026-07-04" },
+    { msg: "夏季休業のお知らせ", seg: "全員", status: "completed", target: 1284, sent: 1268, block: "1.2%", date: "2026-06-28" },
+    { msg: "会員限定 本マグロ入荷", seg: "常連", status: "completed", target: 598, sent: 596, block: "0.2%", date: "2026-06-20" },
+    { msg: "father's day 特集配信中", seg: "新規", status: "sending", target: 203, sent: "—", block: "—", date: "2026-07-06" },
   ];
 
   document.getElementById('history-table').innerHTML = history.map(h => `
@@ -850,7 +850,7 @@
       <td style="color:var(--ink-soft)">${h.seg}</td>
       <td><span class="badge ${h.status}"><span class="d"></span>${h.status === 'completed' ? '完了' : '配信中'}</span></td>
       <td class="mono">${h.target.toLocaleString()}</td>
-      <td class="mono">${h.open}</td>
+      <td class="mono">${h.sent}</td>
       <td class="mono">${h.block}</td>
       <td class="mono" style="color:var(--ink-soft)">${h.date}</td>
     </tr>
