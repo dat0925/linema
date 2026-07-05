@@ -513,7 +513,14 @@
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
     .segment-grid { grid-template-columns: 1fr; }
     .compose-layout { grid-template-columns: 1fr; }
-    .phone-wrap { position: static; display: flex; justify-content: center; margin-top: 20px; }
+    .phone-wrap {
+      position: static;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .reach-box { width: 280px; }
   }
 
   @media (max-width: 720px) {
