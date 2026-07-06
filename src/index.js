@@ -1,7 +1,6 @@
 import { createSupabaseClient } from "./supabase.js";
 import { handleWebhook } from "./webhook.js";
 import { previewSegment, createAndSendBroadcast } from "./broadcast.js";
-import { issueLinkingCode } from "./linking.js";
 import { getUsageSummary } from "./usageSummary.js";
 
 function jsonResponse(data, status = 200) {
@@ -23,15 +22,6 @@ export default {
       const webhookMatch = path.match(/^\/webhook\/([^/]+)$/);
       if (webhookMatch && method === "POST") {
         return await handleWebhook(request, env, supabase, webhookMatch[1]);
-      }
-
-      // 連携コード発行: /api/tenants/:tenantId/linking-codes
-      const linkingMatch = path.match(/^\/api\/tenants\/([^/]+)\/linking-codes$/);
-      if (linkingMatch && method === "POST") {
-        const { customerId } = await request.json();
-        if (!customerId) return jsonResponse({ error: "customerId is required" }, 400);
-        const result = await issueLinkingCode(supabase, linkingMatch[1], customerId);
-        return jsonResponse(result);
       }
 
       // セグメントプレビュー: /api/tenants/:tenantId/segments/:segmentId/preview

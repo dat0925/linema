@@ -9,7 +9,7 @@ async function getChannel(supabase, tenantId) {
  * セグメント該当ユーザー数のプレビュー
  */
 export async function previewSegment(supabase, tenantId, segmentId) {
-  const result = await supabase.rpc("linema_segment_customer_ids", {
+  const result = await supabase.rpc("linema_segment_line_user_ids", {
     p_tenant_id: tenantId,
     p_segment_id: segmentId,
   });
@@ -23,7 +23,7 @@ export async function createAndSendBroadcast(supabase, tenantId, segmentId, mess
   const channel = await getChannel(supabase, tenantId);
   if (!channel) throw new Error("channel not found for tenant");
 
-  const targets = await supabase.rpc("linema_segment_customer_ids", {
+  const targets = await supabase.rpc("linema_segment_line_user_ids", {
     p_tenant_id: tenantId,
     p_segment_id: segmentId,
   });

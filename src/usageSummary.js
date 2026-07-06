@@ -1,21 +1,24 @@
 // サイトマイスター本体（御社→クライアント向けLINEエージェント）が
 // 提案文生成時に読みに行くための軽量サマリー。
 // 「導入していないなら効果イメージを、導入済みなら実績を」提案に織り込むための最小限のデータを返す。
+//
+// 【設計方針】LINE MAエージェントは自己完結型のため、ここで返す指標はすべて
+// LINE MAエージェント自身が持つデータ（友だち数・アンケート回答状況・配信実績）に限る。
+// CRM君や予約GO等、他システムのデータは一切参照しない。
 
 export async function getUsageSummary(supabase, tenantId) {
   const channelRows = await supabase.select("linema_channels", `?tenant_id=eq.${tenantId}&limit=1`);
   const onboarded = Boolean(channelRows && channelRows[0]);
 
   if (!onboarded) {
-    // 未導入テナント: 提案側で「導入すればこうなる」を語るための最小限の情報のみ返す
-    return {
-      tenantId,
-      onboarded: false,
-    };
+    return { tenantId, onboarded: false };
   }
 
   const [lineUsers, broadcasts] = await Promise.all([
-    supabase.select("linema_line_users", `?tenant_id=eq.${tenantId}&select=customer_id,blocked`),
+    supabase.select(
+      "linema_line_users",
+      `?tenant_id=eq.${tenantId}&select=blocked,survey_state,gender,age_group,interests`
+    ),
     supabase.select(
       "linema_broadcasts",
       `?tenant_id=eq.${tenantId}&select=id,status,target_count,sent_count,created_at&order=created_at.desc&limit=5`
@@ -23,7 +26,7 @@ export async function getUsageSummary(supabase, tenantId) {
   ]);
 
   const friendCount = lineUsers.length;
-  const linkedCount = lineUsers.filter((u) => u.customer_id).length;
+  const surveyCompletedCount = lineUsers.filter((u) => u.survey_state === "completed").length;
   const blockedCount = lineUsers.filter((u) => u.blocked).length;
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -34,8 +37,9 @@ export async function getUsageSummary(supabase, tenantId) {
     tenantId,
     onboarded: true,
     friendCount,
-    linkedCount,
-    linkedRate: friendCount > 0 ? Math.round((linkedCount / friendCount) * 1000) / 10 : 0,
+    surveyCompletedCount,
+    surveyCompletionRate:
+      friendCount > 0 ? Math.round((surveyCompletedCount / friendCount) * 1000) / 10 : 0,
     blockedCount,
     broadcastsLast30d,
     lastBroadcast: lastBroadcast
@@ -47,7 +51,6 @@ export async function getUsageSummary(supabase, tenantId) {
         }
       : null,
     // 注: LINE Messaging APIはpush配信に対する開封率を直接提供しないため、
-    // 「開封率」はここには含めない（フロントの配信履歴上の開封率はデモ用のモック値）。
-    // 本番で開封率相当の指標が必要な場合は、リッチメニュー/LIFF経由のトラッキングを別途設計する。
+    // 「開封率」はここには含めない。
   };
 }
