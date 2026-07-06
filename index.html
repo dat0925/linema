@@ -562,7 +562,7 @@
     </button>
     <button class="nav-item" data-screen="customers">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 13.2c2.6.3 4.5 2.4 4.5 5.3"/></svg>
-      顧客連携
+      友だちプロフィール
     </button>
     <button class="nav-item" data-screen="segments">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7M14 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7"/></svg>
@@ -590,7 +590,7 @@
       <div class="page-head">
         <div>
           <h1 class="display">ダッシュボード</h1>
-          <p>友だち・連携状況・直近の配信結果をひと目で確認できます。</p>
+          <p>友だち・アンケート回答状況・直近の配信結果をひと目で確認できます。</p>
         </div>
         <button class="btn btn-brand" onclick="showScreen('compose')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
@@ -605,9 +605,9 @@
           <div class="delta up">先月比 +6.2%</div>
         </div>
         <div class="kpi-card">
-          <div class="label">連携済み顧客</div>
+          <div class="label">アンケート回答済み</div>
           <div class="value mono">842</div>
-          <div class="delta up">連携率 65.6%</div>
+          <div class="delta up">回答率 65.6%</div>
         </div>
         <div class="kpi-card">
           <div class="label">今月の配信</div>
@@ -631,12 +631,12 @@
         </div>
         <div class="activity-row">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/></svg></div>
-          <div class="desc">新規連携 <b>7件</b>（連携コード経由）</div>
+          <div class="desc">新規友だち <b>7件</b> がアンケート回答完了</div>
           <div class="time">3日前</div>
         </div>
         <div class="activity-row">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 5l3 7v6a1 1 0 001 1h1a1 1 0 001-1v-6l3-7"/></svg></div>
-          <div class="desc">セグメント <b>「常連(月3回以上)」</b>を作成</div>
+          <div class="desc">セグメント <b>「40-50代 × 高級魚に関心」</b>を作成</div>
           <div class="time">5日前</div>
         </div>
         <div class="activity-row">
@@ -651,25 +651,22 @@
     <section class="screen" id="screen-customers">
       <div class="page-head">
         <div>
-          <h1 class="display">顧客連携</h1>
-          <p>LINEの友だちとCRM君の顧客データを紐付けます。連携コードを発行し、顧客がLINEでコードを送ると自動的に紐付きます。</p>
+          <h1 class="display">友だちプロフィール</h1>
+          <p>友だち登録時のアンケート（性別・年代・趣味嗜好）の回答状況です。外部システムとの連携はなく、LINE MAエージェント内で完結します。</p>
         </div>
-        <button class="btn btn-primary" onclick="alert('デモ: 実際には顧客を選んで連携コードを発行します')">
-          連携コードを発行
-        </button>
       </div>
 
       <div class="panel" style="display:flex; align-items:center; gap:14px; background:var(--brand-soft); border-color:var(--brand-soft);">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand-deep)" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
         <div style="font-size:12.5px; color:var(--brand-deep); line-height:1.7;">
-          発行例: 顧客「田中様」向けにコード <code class="pin">K7X9QM</code> を発行しました。有効期限30分。田中様がLINEでこのコードを送ると自動的に連携されます。
+          友だち追加時、性別→年代→趣味嗜好の順にLINE上で自動的に質問が送られます。回答は任意（スキップ可）で、そのままセグメント配信の条件として使えます。
         </div>
       </div>
 
       <div class="panel" style="padding:0;">
         <table>
           <thead>
-            <tr><th>表示名</th><th>連携状態</th><th>顧客ID</th><th>最終アクション</th><th>友だち登録日</th></tr>
+            <tr><th>表示名</th><th>アンケート状態</th><th>性別</th><th>年代</th><th>興味・関心</th><th>友だち登録日</th></tr>
           </thead>
           <tbody id="customers-table"></tbody>
         </table>
@@ -681,7 +678,7 @@
       <div class="page-head">
         <div>
           <h1 class="display">セグメント</h1>
-          <p>顧客のタグ・属性を条件にして配信対象を絞り込みます。CRM君のタグをそのまま条件として使えます。</p>
+          <p>アンケート回答（性別・年代・趣味嗜好）とLINE上の行動（登録日・最終メッセージ日時）を条件にして配信対象を絞り込みます。</p>
         </div>
       </div>
 
@@ -702,10 +699,10 @@
           <div class="panel">
             <label class="field-label">配信先セグメント</label>
             <select class="select-box" id="segment-select" onchange="updateReach()">
-              <option value="612">常連（月3回以上来店） — 612人</option>
+              <option value="612">40-50代 × 高級魚に関心 — 612人</option>
               <option value="1284">全員 — 1,284人</option>
-              <option value="203">新規（登録30日以内） — 203人</option>
-              <option value="88">休眠（90日以上来店なし） — 88人</option>
+              <option value="203">登録30日以内（新規） — 203人</option>
+              <option value="88">60日以上未反応（休眠） — 88人</option>
             </select>
 
             <div style="height:16px"></div>
@@ -798,31 +795,40 @@
   });
 
   // ---- mock data ----
-  const customers = [
-    { name: "田中 美咲", status: "linked", id: "CUST-0182", action: "先週の配信の送信対象", date: "2025-11-02" },
-    { name: "佐藤 健一", status: "linked", id: "CUST-0091", action: "連携コードで連携", date: "2025-08-14" },
-    { name: "LINE友だち #4471", status: "unlinked", id: "—", action: "友だち追加のみ", date: "2026-06-30" },
-    { name: "鈴木 陽子", status: "blocked", id: "CUST-0055", action: "1ヶ月前にブロック", date: "2025-05-20" },
-    { name: "高橋 大輔", status: "linked", id: "CUST-0203", action: "連携コードで連携", date: "2026-07-02" },
-    { name: "LINE友だち #4502", status: "unlinked", id: "—", action: "友だち追加のみ", date: "2026-07-03" },
+  const genderLabel = { male: "男性", female: "女性", other: "その他", null: "未回答" };
+  const ageLabel = {
+    "10s": "10代", "20s": "20代", "30s": "30代", "40s": "40代", "50s": "50代", "60s_plus": "60代以上", null: "未回答",
+  };
+  const surveyLabel = {
+    completed: "回答済み", asked_interests: "回答中（趣味嗜好待ち）", asked_age: "回答中（年代待ち）",
+    asked_gender: "回答中（性別待ち）", not_started: "未回答",
+  };
+  const surveyBadgeClass = { completed: "linked", asked_interests: "sending", asked_age: "sending", asked_gender: "sending", not_started: "unlinked" };
+
+  const friends = [
+    { name: "田中 美咲", surveyState: "completed", gender: "female", age: "50s", interests: ["高級魚", "煮魚"], blocked: false, date: "2025-11-02" },
+    { name: "佐藤 健一", surveyState: "completed", gender: "male", age: "40s", interests: ["刺身", "日本酒に合う魚"], blocked: false, date: "2025-08-14" },
+    { name: "LINE友だち #4471", surveyState: "not_started", gender: null, age: null, interests: [], blocked: false, date: "2026-06-30" },
+    { name: "鈴木 陽子", surveyState: "completed", gender: "female", age: "60s_plus", interests: ["干物"], blocked: true, date: "2025-05-20" },
+    { name: "高橋 大輔", surveyState: "asked_interests", gender: "male", age: "30s", interests: [], blocked: false, date: "2026-07-02" },
+    { name: "LINE友だち #4502", surveyState: "not_started", gender: null, age: null, interests: [], blocked: false, date: "2026-07-03" },
   ];
 
-  const statusLabel = { linked: "連携済み", unlinked: "未連携", blocked: "ブロック中" };
-
-  document.getElementById('customers-table').innerHTML = customers.map(c => `
+  document.getElementById('customers-table').innerHTML = friends.map(f => `
     <tr class="row-hover">
-      <td>${c.name}</td>
-      <td><span class="badge ${c.status}"><span class="d"></span>${statusLabel[c.status]}</span></td>
-      <td class="mono" style="color:var(--ink-soft)">${c.id}</td>
-      <td style="color:var(--ink-soft)">${c.action}</td>
-      <td class="mono" style="color:var(--ink-soft)">${c.date}</td>
+      <td>${f.name}${f.blocked ? ' <span class="badge blocked" style="margin-left:6px"><span class="d"></span>ブロック中</span>' : ''}</td>
+      <td><span class="badge ${surveyBadgeClass[f.surveyState]}"><span class="d"></span>${surveyLabel[f.surveyState]}</span></td>
+      <td style="color:var(--ink-soft)">${genderLabel[f.gender]}</td>
+      <td style="color:var(--ink-soft)">${ageLabel[f.age]}</td>
+      <td>${f.interests.length ? f.interests.map(t => `<span class="tag-chip">${t}</span>`).join('') : '<span style="color:var(--ink-soft)">—</span>'}</td>
+      <td class="mono" style="color:var(--ink-soft)">${f.date}</td>
     </tr>
   `).join('');
 
   const segments = [
-    { name: "常連（月3回以上来店）", count: 612, tags: ["来店頻度:高", "会員"] },
-    { name: "新規（登録30日以内）", count: 203, tags: ["登録日:直近30日"] },
-    { name: "休眠（90日以上来店なし）", count: 88, tags: ["来店頻度:低", "要フォロー"] },
+    { name: "40-50代 × 高級魚に関心", count: 612, tags: ["年代:40-50代", "興味:高級魚"] },
+    { name: "登録30日以内（新規）", count: 203, tags: ["登録経過日数 < 30日"] },
+    { name: "60日以上未反応（休眠）", count: 88, tags: ["最終メッセージ > 60日前"] },
     { name: "全員", count: 1284, tags: ["条件なし"] },
   ];
 
@@ -835,13 +841,13 @@
       <div class="count-label">該当人数</div>
       <div class="conditions">${s.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}</div>
     </div>
-  `).join('') + `<div class="new-segment-card" onclick="alert('デモ: 実際にはここでタグ条件を選んでセグメントを作成します')">+ 新しいセグメントを作成</div>`;
+  `).join('') + `<div class="new-segment-card" onclick="alert('デモ: 実際にはここでアンケート属性・LINE行動データの条件を選んでセグメントを作成します')">+ 新しいセグメントを作成</div>`;
 
   const history = [
-    { msg: "週末の入荷情報をお届け", seg: "常連", status: "completed", target: 312, sent: 309, block: "0.3%", date: "2026-07-04" },
+    { msg: "週末の入荷情報をお届け", seg: "40-50代 × 高級魚", status: "completed", target: 312, sent: 309, block: "0.3%", date: "2026-07-04" },
     { msg: "夏季休業のお知らせ", seg: "全員", status: "completed", target: 1284, sent: 1268, block: "1.2%", date: "2026-06-28" },
-    { msg: "会員限定 本マグロ入荷", seg: "常連", status: "completed", target: 598, sent: 596, block: "0.2%", date: "2026-06-20" },
-    { msg: "father's day 特集配信中", seg: "新規", status: "sending", target: 203, sent: "—", block: "—", date: "2026-07-06" },
+    { msg: "会員限定 本マグロ入荷", seg: "40-50代 × 高級魚", status: "completed", target: 598, sent: 596, block: "0.2%", date: "2026-06-20" },
+    { msg: "father's day 特集配信中", seg: "登録30日以内", status: "sending", target: 203, sent: "—", block: "—", date: "2026-07-06" },
   ];
 
   document.getElementById('history-table').innerHTML = history.map(h => `
